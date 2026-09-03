@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Tejasv Nigam — AI Engineer · Founder · Product Builder</title>
+  <meta name="description" content="Personal portfolio of Tejasv Nigam — AI Engineer, Founder, and Product Builder. Currently building Kinship, a healthcare startup.">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+  <!-- ═══ Scroll Track — drives both canvas frames and section visibility ═══ -->
+  <div id="scroll-track"></div>
+
+  <!-- ═══ Canvas — existing frame scrubber engine (untouched) ═══ -->
+  <canvas id="canvas"></canvas>
+
+  <!-- ═══ Scroll Progress Indicator ═══ -->
+  <div class="scroll-indicator" id="scroll-indicator"></div>
+
+  <!-- ═══ Navigation ═══ -->
+  <nav class="nav" id="main-nav">
+    <a class="nav-brand" id="nav-brand" data-interactive></a>
+    <ul class="nav-links" id="nav-links"></ul>
+    <a class="nav-cta" id="nav-cta" data-interactive></a>
+    <button class="nav-hamburger" id="nav-hamburger" aria-label="Menu" data-interactive>
+      <span></span><span></span><span></span>
+    </button>
+  </nav>
+
+  <!-- ═══ Mobile Menu ═══ -->
+  <div class="nav-mobile" id="mobile-menu">
+    <div id="mobile-links"></div>
+  </div>
+
+  <!-- ═══ Content Overlay — all portfolio sections ═══ -->
+  <div id="overlay">
+
+    <!-- ── HERO ──────────────────────────────────────────── -->
+    <section class="section active" id="section-hero">
+      <div class="section-inner">
+        <div class="hero-content">
+          <div class="hero-name reveal-up" id="hero-name"></div>
+          <div class="hero-title reveal-up delay-1" id="hero-title"></div>
+          <h1 class="hero-headline reveal-up delay-2" id="hero-headline"></h1>
+          <p class="hero-description reveal-up delay-3" id="hero-description"></p>
+          <div class="hero-buttons reveal-up delay-4">
+            <button class="btn-primary" id="hero-cta1" data-interactive></button>
+            <button class="btn-secondary" id="hero-cta2" data-interactive></button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── ABOUT ─────────────────────────────────────────── -->
+    <section class="section" id="section-about">
+      <div class="section-inner">
+        <div class="section-label reveal-up" id="about-label"></div>
+        <div class="about-layout">
+          <div class="about-left">
+            <div class="display-lg reveal-up delay-1" id="about-headline"></div>
+            <p class="about-statement reveal-up delay-2" id="about-statement"></p>
+          </div>
+          <div class="about-pillars" id="about-pillars"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── SELECTED WORK — Header ────────────────────────── -->
+    <section class="section" id="section-work-header" style="pointer-events:none;">
+      <div class="section-inner" style="justify-content:flex-start; padding-top: 8vh;">
+        <div class="projects-header">
+          <div class="section-label reveal-up" id="work-label"></div>
+          <div class="display-lg reveal-up delay-1" id="work-headline"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── SELECTED WORK — Project Cards (stacked, only one visible at a time) ── -->
+    <div id="projects-container"></div>
+
+    <!-- ── KINSHIP / FOUNDER ─────────────────────────────── -->
+    <section class="section" id="section-kinship">
+      <div class="section-inner">
+        <div class="kinship-layout">
+          <div class="section-label reveal-up" id="kinship-label"></div>
+          <div class="kinship-badge reveal-up delay-1">FOUNDING</div>
+          <div class="kinship-name reveal-up delay-1" id="kinship-name"></div>
+          <div class="kinship-role reveal-up delay-2" id="kinship-role"></div>
+          <div class="kinship-mission reveal-up delay-2" id="kinship-mission"></div>
+          <div class="kinship-grid" id="kinship-grid"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── EXPERIENCE ────────────────────────────────────── -->
+    <section class="section" id="section-experience">
+      <div class="section-inner">
+        <div class="experience-layout">
+          <div class="section-label reveal-up" id="exp-label"></div>
+          <div class="display-lg reveal-up delay-1" id="exp-headline"></div>
+          <div id="exp-container"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── SKILLS ────────────────────────────────────────── -->
+    <section class="section" id="section-skills">
+      <div class="section-inner">
+        <div class="skills-layout">
+          <div class="section-label reveal-up" id="skills-label"></div>
+          <div class="display-lg reveal-up delay-1" id="skills-headline"></div>
+          <div class="skills-grid" id="skills-grid"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── PROOF ─────────────────────────────────────────── -->
+    <section class="section" id="section-proof">
+      <div class="section-inner">
+        <div class="proof-layout">
+          <div class="section-label reveal-up" id="proof-label"></div>
+          <div class="display-lg reveal-up delay-1" id="proof-headline"></div>
+          <div class="proof-stats" id="proof-stats"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── CURRENTLY BUILDING ────────────────────────────── -->
+    <section class="section" id="section-now">
+      <div class="section-inner">
+        <div class="now-layout">
+          <div class="section-label reveal-up" id="now-label"></div>
+          <div class="display-lg reveal-up delay-1" id="now-headline"></div>
+          <div class="now-status-grid" id="now-grid"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── BEYOND CODE ───────────────────────────────────── -->
+    <section class="section" id="section-personal">
+      <div class="section-inner">
+        <div class="personal-layout">
+          <div class="section-label reveal-up" id="personal-label"></div>
+          <div class="display-lg reveal-up delay-1" id="personal-headline"></div>
+          <div class="personal-interests reveal-up delay-2" id="personal-interests"></div>
+          <div class="personal-featured reveal-up delay-3">
+            <div class="personal-featured-title" id="personal-featured-title"></div>
+            <div class="personal-featured-desc" id="personal-featured-desc"></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── CONTACT / CTA ─────────────────────────────────── -->
+    <section class="section" id="section-contact">
+      <div class="section-inner">
+        <div class="contact-layout">
+          <div class="section-label reveal-up"><span>09</span> / CONNECT</div>
+          <h2 class="contact-headline reveal-up delay-1" id="contact-headline"></h2>
+          <p class="contact-desc reveal-up delay-2" id="contact-desc"></p>
+          <div class="contact-links reveal-up delay-3">
+            <div class="contact-link-row">
+              <span class="contact-link-label">EMAIL</span>
+              <a class="contact-link-value" id="contact-email" href="#" data-interactive></a>
+            </div>
+            <div class="contact-link-row" id="contact-github-row" style="display:none;">
+              <span class="contact-link-label">GITHUB</span>
+              <a class="contact-link-value" id="contact-github" href="#" target="_blank" rel="noopener" data-interactive></a>
+            </div>
+            <div class="contact-link-row" id="contact-linkedin-row" style="display:none;">
+              <span class="contact-link-label">LINKEDIN</span>
+              <a class="contact-link-value" id="contact-linkedin" href="#" target="_blank" rel="noopener" data-interactive></a>
+            </div>
+          </div>
+          <div class="contact-cta-row reveal-up delay-4">
+            <a class="btn-primary" id="contact-view-github" href="#" target="_blank" rel="noopener" style="display:none;" data-interactive>VIEW GITHUB <span style="margin-left:0.3rem;">→</span></a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </div><!-- /overlay -->
+
+  <!-- ═══ Scripts ═══ -->
+  <script src="data.js"></script>
+  <script src="app.js"></script>
+
+  <!-- ═══ Frame Scrubber Engine (preserved from original) ═══ -->
+  <script>
+    (() => {
+      const canvas = document.getElementById('canvas');
+      const ctx = canvas.getContext('2d', { alpha: false });
+      const scrollTrack = document.getElementById('scroll-track');
+
+      const FRAME_COUNT = 214;
+      const getFrameSrc = (index) => `ezgif-frame-${String(index + 1).padStart(3, '0')}.jpg`;
+
+      const images = new Array(FRAME_COUNT);
+      let targetProgress = 0;
+      let currentProgress = 0;
+      let lastDrawnFrame = -1;
+      const LERP_EASE = 0.08; // Smooth inertia damping factor
+
+      // Source image native resolution
+      const SRC_WIDTH = 1920;
+      const SRC_HEIGHT = 1080;
+
+      // High-DPI responsive canvas setup — cap DPR so we never upscale beyond source res
+      function resizeCanvas() {
+        const cssWidth = window.innerWidth;
+        const cssHeight = window.innerHeight;
+        const nativeDpr = window.devicePixelRatio || 1;
+
+        // Cap DPR: don't create a backing buffer larger than the source can fill sharply
+        const maxDprX = SRC_WIDTH / cssWidth;
+        const maxDprY = SRC_HEIGHT / cssHeight;
+        const maxUsefulDpr = Math.min(maxDprX, maxDprY);
+        const dpr = Math.min(nativeDpr, Math.max(1, maxUsefulDpr));
+
+        canvas.width = Math.round(cssWidth * dpr);
+        canvas.height = Math.round(cssHeight * dpr);
+        canvas.style.width = cssWidth + 'px';
+        canvas.style.height = cssHeight + 'px';
+
+        ctx.imageSmoothingEnabled = true;
+        ctx.imageSmoothingQuality = 'high';
+
+        if (lastDrawnFrame >= 0) {
+          drawFrame(lastDrawnFrame, true);
+        }
+      }
+
+      function drawFrame(frameIndex, forceRedraw = false) {
+        if (!forceRedraw && frameIndex === lastDrawnFrame) return;
+
+        let img = images[frameIndex];
+
+        // Graceful fallback to nearest available loaded frame during fast scrubs
+        if (!img || !img.complete || img.naturalWidth === 0) {
+          for (let offset = 1; offset < FRAME_COUNT; offset++) {
+            const prev = frameIndex - offset;
+            if (prev >= 0 && images[prev]?.complete && images[prev]?.naturalWidth > 0) {
+              img = images[prev];
+              break;
+            }
+            const next = frameIndex + offset;
+            if (next < FRAME_COUNT && images[next]?.complete && images[next]?.naturalWidth > 0) {
+              img = images[next];
+              break;
+            }
+          }
+        }
+
+        if (!img || !img.complete || img.naturalWidth === 0) return;
+
+        const cw = canvas.width;
+        const ch = canvas.height;
+        const iw = img.naturalWidth;
+        const ih = img.naturalHeight;
+
+        // Always cover-fit: fill the canvas entirely, crop overflow
+        const scale = Math.max(cw / iw, ch / ih);
+
+        const dw = Math.round(iw * scale);
+        const dh = Math.round(ih * scale);
+        const dx = Math.round((cw - dw) / 2);
+        const dy = Math.round((ch - dh) / 2);
+
+        ctx.fillStyle = '#000000';
+        ctx.fillRect(0, 0, cw, ch);
+        ctx.drawImage(img, dx, dy, dw, dh);
+
+        lastDrawnFrame = frameIndex;
+      }
+
+      // Preload sequence with async decoding for hitch-free rendering
+      function preloadImages() {
+        // Immediately load frame 0 to render instantly
+        const firstImg = new Image();
+        firstImg.src = getFrameSrc(0);
+        firstImg.onload = () => {
+          images[0] = firstImg;
+          drawFrame(0);
+        };
+
+        // Preload remaining frames
+        for (let i = 0; i < FRAME_COUNT; i++) {
+          if (i === 0) continue;
+          const img = new Image();
+          img.src = getFrameSrc(i);
+
+          if ('decode' in img) {
+            img.decode()
+              .then(() => { images[i] = img; })
+              .catch(() => { images[i] = img; });
+          } else {
+            img.onload = () => { images[i] = img; };
+          }
+        }
+      }
+
+      // Smooth animation update loop
+      function onFrame() {
+        const maxScroll = document.documentElement.scrollHeight - window.innerHeight;
+        if (maxScroll > 0) {
+          targetProgress = Math.max(0, Math.min(1, window.scrollY / maxScroll));
+        } else {
+          targetProgress = 0;
+        }
+
+        // Interpolate progress with exponential easing for buttery motion
+        const diff = targetProgress - currentProgress;
+        if (Math.abs(diff) < 0.00005) {
+          currentProgress = targetProgress;
+        } else {
+          currentProgress += diff * LERP_EASE;
+        }
+
+        const frameIndex = Math.min(
+          FRAME_COUNT - 1,
+          Math.max(0, Math.round(currentProgress * (FRAME_COUNT - 1)))
+        );
+
+        drawFrame(frameIndex);
+
+        // ── Hook: update portfolio sections with current progress ──
+        if (window._portfolioUpdate) {
+          window._portfolioUpdate(currentProgress);
+        }
+
+        requestAnimationFrame(onFrame);
+      }
+
+      // Event listeners
+      window.addEventListener('resize', resizeCanvas, { passive: true });
+
+      // Initialize
+      resizeCanvas();
+      preloadImages();
+      requestAnimationFrame(onFrame);
+    })();
+  </script>
+</body>
+</html>
