@@ -5,6 +5,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>Tejasv Nigam — AI Engineer · Founder · Product Builder</title>
   <meta name="description" content="Personal portfolio of Tejasv Nigam — AI Engineer, Founder, and Product Builder. Currently building Kinship, a healthcare startup.">
+  <meta name="theme-color" content="#020611">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
@@ -13,23 +16,28 @@
   <div id="scroll-track"></div>
 
   <!-- ═══ Canvas — existing frame scrubber engine (untouched) ═══ -->
-  <canvas id="canvas"></canvas>
+  <canvas id="canvas" aria-hidden="true"></canvas>
+
+  <!-- ═══ Ambient Glow Effects — decorative depth layers ═══ -->
+  <div class="ambient-glow ambient-glow--top-right" aria-hidden="true"></div>
+  <div class="ambient-glow ambient-glow--bottom-left" aria-hidden="true"></div>
+  <div class="ambient-glow ambient-glow--center" aria-hidden="true"></div>
 
   <!-- ═══ Scroll Progress Indicator ═══ -->
-  <div class="scroll-indicator" id="scroll-indicator"></div>
+  <div class="scroll-indicator" id="scroll-indicator" role="progressbar" aria-label="Scroll progress"></div>
 
   <!-- ═══ Navigation ═══ -->
-  <nav class="nav" id="main-nav">
-    <a class="nav-brand" id="nav-brand" data-interactive></a>
+  <nav class="nav" id="main-nav" role="navigation" aria-label="Primary navigation">
+    <a class="nav-brand" id="nav-brand" data-interactive aria-label="Home"></a>
     <ul class="nav-links" id="nav-links"></ul>
     <a class="nav-cta" id="nav-cta" data-interactive></a>
-    <button class="nav-hamburger" id="nav-hamburger" aria-label="Menu" data-interactive>
+    <button class="nav-hamburger" id="nav-hamburger" aria-label="Toggle navigation menu" aria-expanded="false" data-interactive>
       <span></span><span></span><span></span>
     </button>
   </nav>
 
   <!-- ═══ Mobile Menu ═══ -->
-  <div class="nav-mobile" id="mobile-menu">
+  <div class="nav-mobile" id="mobile-menu" role="dialog" aria-label="Mobile navigation">
     <div id="mobile-links"></div>
   </div>
 
@@ -37,7 +45,7 @@
   <div id="overlay">
 
     <!-- ── HERO ──────────────────────────────────────────── -->
-    <section class="section active" id="section-hero">
+    <section class="section active" id="section-hero" aria-label="Introduction">
       <div class="section-inner">
         <div class="hero-content">
           <div class="hero-name reveal-up" id="hero-name"></div>
@@ -53,7 +61,7 @@
     </section>
 
     <!-- ── ABOUT ─────────────────────────────────────────── -->
-    <section class="section" id="section-about">
+    <section class="section" id="section-about" aria-label="About me">
       <div class="section-inner">
         <div class="section-label reveal-up" id="about-label"></div>
         <div class="about-layout">
@@ -67,7 +75,7 @@
     </section>
 
     <!-- ── SELECTED WORK — Header ────────────────────────── -->
-    <section class="section" id="section-work-header" style="pointer-events:none;">
+    <section class="section" id="section-work-header" style="pointer-events:none;" aria-label="Selected work">
       <div class="section-inner" style="justify-content:flex-start; padding-top: 8vh;">
         <div class="projects-header">
           <div class="section-label reveal-up" id="work-label"></div>
@@ -80,7 +88,7 @@
     <div id="projects-container"></div>
 
     <!-- ── KINSHIP / FOUNDER ─────────────────────────────── -->
-    <section class="section" id="section-kinship">
+    <section class="section" id="section-kinship" aria-label="Kinship startup">
       <div class="section-inner">
         <div class="kinship-layout">
           <div class="section-label reveal-up" id="kinship-label"></div>
@@ -94,7 +102,7 @@
     </section>
 
     <!-- ── EXPERIENCE ────────────────────────────────────── -->
-    <section class="section" id="section-experience">
+    <section class="section" id="section-experience" aria-label="Professional experience">
       <div class="section-inner">
         <div class="experience-layout">
           <div class="section-label reveal-up" id="exp-label"></div>
@@ -105,7 +113,7 @@
     </section>
 
     <!-- ── SKILLS ────────────────────────────────────────── -->
-    <section class="section" id="section-skills">
+    <section class="section" id="section-skills" aria-label="Technical skills">
       <div class="section-inner">
         <div class="skills-layout">
           <div class="section-label reveal-up" id="skills-label"></div>
@@ -116,7 +124,7 @@
     </section>
 
     <!-- ── PROOF ─────────────────────────────────────────── -->
-    <section class="section" id="section-proof">
+    <section class="section" id="section-proof" aria-label="Achievements and proof">
       <div class="section-inner">
         <div class="proof-layout">
           <div class="section-label reveal-up" id="proof-label"></div>
@@ -127,7 +135,7 @@
     </section>
 
     <!-- ── CURRENTLY BUILDING ────────────────────────────── -->
-    <section class="section" id="section-now">
+    <section class="section" id="section-now" aria-label="Currently building">
       <div class="section-inner">
         <div class="now-layout">
           <div class="section-label reveal-up" id="now-label"></div>
@@ -138,7 +146,7 @@
     </section>
 
     <!-- ── BEYOND CODE ───────────────────────────────────── -->
-    <section class="section" id="section-personal">
+    <section class="section" id="section-personal" aria-label="Personal interests">
       <div class="section-inner">
         <div class="personal-layout">
           <div class="section-label reveal-up" id="personal-label"></div>
@@ -153,7 +161,7 @@
     </section>
 
     <!-- ── CONTACT / CTA ─────────────────────────────────── -->
-    <section class="section" id="section-contact">
+    <section class="section" id="section-contact" aria-label="Contact information">
       <div class="section-inner">
         <div class="contact-layout">
           <div class="section-label reveal-up"><span>09</span> / CONNECT</div>
@@ -181,6 +189,12 @@
     </section>
 
   </div><!-- /overlay -->
+
+  <!-- ═══ Footer ═══ -->
+  <footer class="site-footer" aria-label="Site footer">
+    <span>© 2026 Tejasv Nigam</span>
+    <span>Built with precision</span>
+  </footer>
 
   <!-- ═══ Scripts ═══ -->
   <script src="data.js"></script>

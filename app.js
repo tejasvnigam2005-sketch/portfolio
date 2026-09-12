@@ -1,5 +1,6 @@
 // ═══════════════════════════════════════════════════════════════
-// PORTFOLIO APP — Section controller, renderer, and navigation
+// PORTFOLIO APP — V2 — Section controller, renderer, navigation,
+// animated counters, magnetic buttons, smooth mobile menu.
 // Reads content from data.js, controls section visibility based
 // on scroll progress, and handles all interactivity.
 // ═══════════════════════════════════════════════════════════════
@@ -43,6 +44,8 @@
   // ── State ────────────────────────────────────────────────
   let currentProgress = 0;
   let mobileMenuOpen = false;
+  let countersAnimated = false;
+  let previouslyActive = new Set();
 
   // ── DOM References ───────────────────────────────────────
   const overlay = document.getElementById('overlay');
@@ -70,7 +73,7 @@
 
     // Nav CTA
     const navCtaEl = document.getElementById('nav-cta');
-    navCtaEl.innerHTML = `${d.nav.cta.label} <span class="nav-cta-arrow">→</span>`;
+    navCtaEl.innerHTML = `<span>${esc(d.nav.cta.label)}</span> <span class="nav-cta-arrow">→</span>`;
     navCtaEl.addEventListener('click', () => scrollToSection(d.nav.cta.target));
 
     // Brand
@@ -272,7 +275,7 @@
       const div = document.createElement('div');
       div.className = `proof-stat reveal-up delay-${i + 1}`;
       div.innerHTML = `
-        <div class="proof-value">${esc(s.value)}</div>
+        <div class="proof-value" data-target="${esc(s.value)}">${esc(s.value)}</div>
         <div class="proof-label">${esc(s.label)}</div>
       `;
       proofStats.appendChild(div);
@@ -349,6 +352,45 @@
     }
   }
 
+  // ── Animated Counter ─────────────────────────────────────
+  function animateCounters() {
+    if (countersAnimated) return;
+    countersAnimated = true;
+
+    const proofValues = document.querySelectorAll('.proof-value');
+    proofValues.forEach(el => {
+      const target = el.getAttribute('data-target');
+      if (!target) return;
+
+      // Extract numeric part and suffix
+      const match = target.match(/^(\d+)(.*)$/);
+      if (match) {
+        const endNum = parseInt(match[1], 10);
+        const suffix = match[2]; // e.g., "+"
+        const duration = 1800;
+        const startTime = performance.now();
+
+        function updateCounter(now) {
+          const elapsed = now - startTime;
+          const progress = Math.min(elapsed / duration, 1);
+          // Ease-out cubic
+          const eased = 1 - Math.pow(1 - progress, 3);
+          const current = Math.round(eased * endNum);
+
+          el.textContent = current + suffix;
+
+          if (progress < 1) {
+            requestAnimationFrame(updateCounter);
+          }
+        }
+
+        el.textContent = '0' + suffix;
+        requestAnimationFrame(updateCounter);
+      }
+      // Non-numeric values (like "FINALIST") just stay as-is
+    });
+  }
+
   // ── Section Visibility Controller ────────────────────────
   function updateSections(progress) {
     // Update main sections (except work which has sub-sections)
@@ -359,6 +401,11 @@
       const range = SECTIONS[key];
       const isActive = progress >= range.start && progress <= range.end;
       el.classList.toggle('active', isActive);
+
+      // Trigger counter animation when proof section becomes active
+      if (key === 'proof' && isActive && !countersAnimated) {
+        animateCounters();
+      }
     });
 
     // Work section — show header during full work range
@@ -417,17 +464,45 @@
   function toggleMobileMenu() {
     mobileMenuOpen = !mobileMenuOpen;
     mobileMenu.classList.toggle('open', mobileMenuOpen);
+    hamburger.classList.toggle('active', mobileMenuOpen);
     document.body.style.overflow = mobileMenuOpen ? 'hidden' : '';
   }
 
   function closeMobileMenu() {
     mobileMenuOpen = false;
     mobileMenu.classList.remove('open');
+    hamburger.classList.remove('active');
     document.body.style.overflow = '';
   }
 
   if (hamburger) {
     hamburger.addEventListener('click', toggleMobileMenu);
+  }
+
+  // ── Magnetic Button Effect ───────────────────────────────
+  function initMagneticButtons() {
+    const buttons = document.querySelectorAll('.btn-primary, .btn-secondary, .nav-cta');
+
+    buttons.forEach(btn => {
+      btn.addEventListener('mousemove', (e) => {
+        const rect = btn.getBoundingClientRect();
+        const x = e.clientX - rect.left - rect.width / 2;
+        const y = e.clientY - rect.top - rect.height / 2;
+        const strength = 0.15;
+
+        btn.style.transform = `translate(${x * strength}px, ${y * strength}px)`;
+      });
+
+      btn.addEventListener('mouseleave', () => {
+        btn.style.transform = '';
+        btn.style.transition = `transform var(--duration-normal) var(--ease-spring)`;
+
+        // Reset transition after animation completes
+        setTimeout(() => {
+          btn.style.transition = '';
+        }, 400);
+      });
+    });
   }
 
   // ── Helpers ──────────────────────────────────────────────
@@ -458,5 +533,10 @@
   // ── Initialize ───────────────────────────────────────────
   renderContent();
   updateSections(0);
+
+  // Defer magnetic buttons to after DOM paint
+  requestAnimationFrame(() => {
+    initMagneticButtons();
+  });
 
 })();
