@@ -9,33 +9,36 @@
   'use strict';
 
   // ── Section Progress Ranges ──────────────────────────────
-  // Each section maps to a scroll progress range [start, end]
+  // Each section has a distinct, non-overlapping range with clean buffers
+  // between them so two sections can never collide or overlap.
   const SECTIONS = {
-    hero:       { start: 0.00, end: 0.08 },
-    about:      { start: 0.07, end: 0.16 },
-    work:       { start: 0.15, end: 0.40 },
-    kinship:    { start: 0.39, end: 0.50 },
-    experience: { start: 0.49, end: 0.58 },
-    skills:     { start: 0.57, end: 0.64 },
-    proof:      { start: 0.63, end: 0.70 },
-    now:        { start: 0.69, end: 0.76 },
-    personal:   { start: 0.75, end: 0.83 },
-    contact:    { start: 0.82, end: 1.00 },
+    hero:       { start: 0.000, end: 0.065 },
+    about:      { start: 0.080, end: 0.150 },
+    work:       { start: 0.165, end: 0.395 },
+    kinship:    { start: 0.410, end: 0.490 },
+    experience: { start: 0.505, end: 0.575 },
+    skills:     { start: 0.590, end: 0.645 },
+    proof:      { start: 0.660, end: 0.710 },
+    now:        { start: 0.725, end: 0.775 },
+    personal:   { start: 0.790, end: 0.840 },
+    contact:    { start: 0.855, end: 1.000 },
   };
 
   // Project sub-sections within the work range
+  // Card 0 starts at 0.208, after the section-work-header intro (0.165-0.198)
   function getProjectRanges(count) {
-    const workStart = SECTIONS.work.start;
-    const workEnd = SECTIONS.work.end;
-    const totalRange = workEnd - workStart;
-    // First portion for the header
-    const headerPortion = 0.02;
-    const projectRange = (totalRange - headerPortion) / count;
+    const cardsStart = 0.208;
+    const cardsEnd = 0.386;
+    const totalSpan = cardsEnd - cardsStart;
+    const slice = totalSpan / count;
+    const gap = 0.010; // clean buffer between cards so no cards collide
     const ranges = [];
     for (let i = 0; i < count; i++) {
+      const pStart = cardsStart + i * slice;
+      const pEnd = pStart + slice - gap;
       ranges.push({
-        start: workStart + headerPortion + i * projectRange,
-        end: workStart + headerPortion + (i + 1) * projectRange,
+        start: pStart,
+        end: pEnd,
       });
     }
     return ranges;
@@ -161,10 +164,9 @@
 
       card.innerHTML = `
         <div class="section-inner">
-          <div class="section-label reveal-up"><span>${esc(proj.number)}</span></div>
+          <div class="section-label reveal-up"><span>02</span> / SELECTED WORK &nbsp;·&nbsp; ${esc(proj.number)}</div>
           <div class="${layoutClass}">
             <div class="project-info">
-              <div class="project-number reveal-up delay-1">${esc(proj.number)}</div>
               <div class="project-name reveal-up delay-1">${esc(proj.name)}</div>
               <div class="project-short reveal-up delay-2">${esc(proj.shortDescription)}</div>
               ${tagsHtml ? `<div class="reveal-up delay-2">${tagsHtml}</div>` : ''}
@@ -393,13 +395,22 @@
 
   // ── Section Visibility Controller ────────────────────────
   function updateSections(progress) {
-    // Update main sections (except work which has sub-sections)
-    Object.keys(SECTIONS).forEach(key => {
-      if (key === 'work') return; // handled separately
+    // 1. Determine which main section (if any) is active.
+    // Single-winner guarantee: only ONE main section can ever be active.
+    const mainKeys = ['hero', 'about', 'kinship', 'experience', 'skills', 'proof', 'now', 'personal', 'contact'];
+    let activeMainKey = null;
+    for (const key of mainKeys) {
+      const range = SECTIONS[key];
+      if (progress >= range.start && progress <= range.end) {
+        activeMainKey = key;
+        break;
+      }
+    }
+
+    mainKeys.forEach(key => {
       const el = document.getElementById(`section-${key}`);
       if (!el) return;
-      const range = SECTIONS[key];
-      const isActive = progress >= range.start && progress <= range.end;
+      const isActive = (key === activeMainKey);
       el.classList.toggle('active', isActive);
 
       // Trigger counter animation when proof section becomes active
@@ -408,25 +419,31 @@
       }
     });
 
-    // Work section — show header during full work range
+    // 2. Work section header — active strictly during intro phase before project cards
     const workHeader = document.getElementById('section-work-header');
     if (workHeader) {
-      const workRange = SECTIONS.work;
-      const inWork = progress >= workRange.start && progress <= workRange.end;
-      workHeader.classList.toggle('active', inWork);
+      const inWorkHeader = progress >= SECTIONS.work.start && progress <= 0.198;
+      workHeader.classList.toggle('active', inWorkHeader);
     }
 
-    // Individual project cards
+    // 3. Project cards — single-winner guarantee: only ONE card can ever be active
     const projectCount = portfolio.projects.items.length;
     const projectRanges = getProjectRanges(projectCount);
+    let activeCardIndex = -1;
     projectRanges.forEach((range, i) => {
-      const card = document.getElementById(`project-${i}`);
-      if (!card) return;
-      const isActive = progress >= range.start && progress <= range.end;
-      card.classList.toggle('active', isActive);
+      if (progress >= range.start && progress <= range.end) {
+        activeCardIndex = i;
+      }
     });
 
-    // Update nav active states
+    for (let i = 0; i < projectCount; i++) {
+      const card = document.getElementById(`project-${i}`);
+      if (card) {
+        card.classList.toggle('active', i === activeCardIndex);
+      }
+    }
+
+    // 4. Update nav active states
     const navLinks = document.querySelectorAll('.nav-link');
     let activeTarget = null;
     const orderedSections = ['hero', 'about', 'work', 'kinship', 'experience', 'skills', 'proof', 'now', 'personal', 'contact'];
@@ -441,10 +458,10 @@
       link.classList.toggle('active', link.dataset.target === activeTarget);
     });
 
-    // Nav scroll state
+    // 5. Nav scroll state
     nav.classList.toggle('scrolled', progress > 0.02);
 
-    // Scroll indicator
+    // 6. Scroll indicator
     if (scrollIndicator) {
       scrollIndicator.style.width = `${progress * 100}%`;
     }
@@ -454,7 +471,8 @@
   function scrollToSection(target) {
     const range = SECTIONS[target];
     if (!range) return;
-    const targetProgress = range.start + 0.005; // slight offset into the section
+    // Scroll directly into the comfortable center of the section's active range
+    const targetProgress = (range.start + range.end) / 2;
     const maxScroll = document.documentElement.scrollHeight - window.innerHeight;
     const targetScroll = targetProgress * maxScroll;
     window.scrollTo({ top: targetScroll, behavior: 'smooth' });

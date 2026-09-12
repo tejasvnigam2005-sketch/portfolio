@@ -52,6 +52,9 @@
   --space-3xl: 6rem;
   --space-4xl: 8rem;
 
+  /* Layout */
+  --nav-height: 74px;
+
   /* Transitions */
   --ease-out:    cubic-bezier(0.16, 1, 0.3, 1);
   --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
@@ -192,16 +195,17 @@ body {
   display: flex;
   opacity: 0;
   visibility: hidden;
-  transition: opacity var(--duration-slow) var(--ease-out),
-              visibility 0s var(--duration-slow);
-  padding: clamp(1.5rem, 4vw, 4rem);
+  transition: opacity 280ms var(--ease-out),
+              visibility 0s 280ms;
+  padding: calc(var(--nav-height) + clamp(0.75rem, 2vh, 1.75rem)) clamp(1.5rem, 4vw, 4rem) clamp(1.5rem, 3vh, 3rem);
+  box-sizing: border-box;
   pointer-events: none;
 }
 
 .section.active {
   opacity: 1;
   visibility: visible;
-  transition: opacity var(--duration-slow) var(--ease-out),
+  transition: opacity 280ms var(--ease-out),
               visibility 0s 0s;
   pointer-events: auto;
 }
@@ -213,6 +217,7 @@ body {
   display: flex;
   flex-direction: column;
   justify-content: center;
+  max-height: 100%;
 }
 
 /* ── Section Label ──────────────────────────────────────────── */
@@ -757,16 +762,18 @@ body {
   justify-content: center;
   opacity: 0;
   visibility: hidden;
-  transition: opacity var(--duration-slow) var(--ease-out),
-              visibility 0s var(--duration-slow);
-  padding: clamp(1.5rem, 4vw, 4rem);
+  transition: opacity 280ms var(--ease-out),
+              visibility 0s 280ms;
+  padding: calc(var(--nav-height) + clamp(4.5rem, 10vh, 7.5rem)) clamp(1.5rem, 4vw, 4rem) clamp(1.5rem, 3vh, 3rem);
+  box-sizing: border-box;
+  pointer-events: none;
 }
 
 .project-card.active {
   opacity: 1;
   visibility: visible;
   pointer-events: auto;
-  transition: opacity var(--duration-slow) var(--ease-out),
+  transition: opacity 280ms var(--ease-out),
               visibility 0s 0s;
 }
 
@@ -1013,6 +1020,7 @@ body {
    ═══════════════════════════════════════════════════════════════ */
 .kinship-layout {
   max-width: 950px;
+  width: 100%;
 }
 
 .kinship-badge {
@@ -1024,9 +1032,9 @@ body {
   font-weight: 600;
   letter-spacing: 0.18em;
   text-transform: uppercase;
-  padding: 0.45rem 1.2rem;
+  padding: 0.35rem 1rem;
   border-radius: 20px;
-  margin-bottom: var(--space-lg);
+  margin-bottom: var(--space-sm);
   color: #fff;
   background: var(--gradient-accent);
   box-shadow: 0 4px 20px rgba(99, 102, 241, 0.25);
@@ -1034,11 +1042,11 @@ body {
 
 .kinship-name {
   font-family: var(--font-display);
-  font-size: clamp(3rem, 7vw, 6rem);
+  font-size: clamp(2.4rem, 4.5vw, 4rem);
   font-weight: 700;
   letter-spacing: -0.04em;
-  line-height: 1;
-  margin-bottom: var(--space-sm);
+  line-height: 1.05;
+  margin-bottom: var(--space-xs);
   background: var(--gradient-text);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
@@ -1047,21 +1055,21 @@ body {
 
 .kinship-role {
   font-family: var(--font-mono);
-  font-size: 0.78rem;
+  font-size: 0.75rem;
   font-weight: 500;
   letter-spacing: 0.12em;
   text-transform: uppercase;
   color: var(--text-muted);
-  margin-bottom: var(--space-2xl);
+  margin-bottom: var(--space-md);
 }
 
 .kinship-mission {
-  font-size: clamp(0.95rem, 1.3vw, 1.1rem);
-  line-height: 1.85;
+  font-size: clamp(0.88rem, 1.1vw, 1rem);
+  line-height: 1.65;
   color: var(--text-secondary);
-  max-width: 40em;
-  margin-bottom: var(--space-3xl);
-  padding-left: var(--space-lg);
+  max-width: 42em;
+  margin-bottom: var(--space-lg);
+  padding-left: var(--space-md);
   border-left: 2px solid;
   border-image: var(--gradient-accent) 1;
 }
@@ -1069,11 +1077,11 @@ body {
 .kinship-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: var(--space-lg);
+  gap: clamp(0.75rem, 1.2vw, 1.25rem);
 }
 
 .kinship-block {
-  padding: var(--space-xl);
+  padding: clamp(0.85rem, 1.2vw, 1.25rem);
   background: var(--bg-card);
   border: 1px solid var(--border);
   border-radius: 12px;
