@@ -459,25 +459,54 @@
     // — Contact —
     document.getElementById('contact-headline').textContent = d.contact.headline;
     document.getElementById('contact-desc').textContent = d.contact.description;
-    document.getElementById('contact-email').textContent = d.contact.email;
-    document.getElementById('contact-email').href = `mailto:${d.contact.email}`;
 
-    if (d.contact.github) {
-      document.getElementById('contact-github').textContent = d.contact.github.replace('https://github.com/', '');
-      document.getElementById('contact-github').href = d.contact.github;
-      document.getElementById('contact-github-row').style.display = 'flex';
+    // Email
+    const contactEmailEl = document.getElementById('contact-email');
+    if (contactEmailEl) {
+      contactEmailEl.textContent = d.contact.email;
+      contactEmailEl.href = `mailto:${d.contact.email}`;
     }
 
-    if (d.contact.linkedin) {
-      document.getElementById('contact-linkedin').textContent = 'LinkedIn Profile';
-      document.getElementById('contact-linkedin').href = d.contact.linkedin;
-      document.getElementById('contact-linkedin-row').style.display = 'flex';
+    const copyBtn = document.getElementById('contact-copy-email');
+    if (copyBtn) {
+      copyBtn.addEventListener('click', () => {
+        navigator.clipboard.writeText(d.contact.email).then(() => {
+          copyBtn.classList.add('copied');
+          const textSpan = copyBtn.querySelector('.copy-text');
+          if (textSpan) textSpan.textContent = 'COPIED! ✓';
+          setTimeout(() => {
+            copyBtn.classList.remove('copied');
+            if (textSpan) textSpan.textContent = 'COPY';
+          }, 2000);
+        });
+      });
     }
 
+    // GitHub
+    const githubCard = document.getElementById('contact-github-card');
+    const githubEl = document.getElementById('contact-github');
+    const githubLink = document.getElementById('contact-github-link');
     const contactViewGithub = document.getElementById('contact-view-github');
+
     if (d.contact.github) {
-      contactViewGithub.href = d.contact.github;
-      contactViewGithub.style.display = 'inline-flex';
+      const handle = d.contact.github.replace('https://github.com/', '');
+      if (githubEl) {
+        githubEl.textContent = `@${handle}`;
+        githubEl.href = d.contact.github;
+      }
+      if (githubLink) githubLink.href = d.contact.github;
+      if (contactViewGithub) {
+        contactViewGithub.href = d.contact.github;
+        contactViewGithub.style.display = 'inline-flex';
+      }
+    } else if (githubCard) {
+      githubCard.style.display = 'none';
+    }
+
+    // Primary CTA
+    const primaryBtn = document.getElementById('contact-primary-btn');
+    if (primaryBtn) {
+      primaryBtn.href = `mailto:${d.contact.email}?subject=Project%20Inquiry`;
     }
   }
 

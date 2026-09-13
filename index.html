@@ -8,7 +8,7 @@
   <meta name="theme-color" content="#020611">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link rel="stylesheet" href="styles.css?v=p5">
+  <link rel="stylesheet" href="styles.css?v=p8">
 </head>
 <body>
 
@@ -164,28 +164,62 @@
     </section>
 
     <!-- ── CONTACT / CTA ─────────────────────────────────── -->
+    <!-- ── CONTACT / CTA ─────────────────────────────────── -->
     <section class="section" id="section-contact" aria-label="Contact information">
       <div class="section-inner">
         <div class="contact-layout">
-          <div class="section-label reveal-up"><span>09</span> / CONNECT</div>
-          <h2 class="contact-headline reveal-up delay-1" id="contact-headline"></h2>
-          <p class="contact-desc reveal-up delay-2" id="contact-desc"></p>
-          <div class="contact-links reveal-up delay-3">
-            <div class="contact-link-row">
-              <span class="contact-link-label">EMAIL</span>
-              <a class="contact-link-value" id="contact-email" href="#" data-interactive></a>
-            </div>
-            <div class="contact-link-row" id="contact-github-row" style="display:none;">
-              <span class="contact-link-label">GITHUB</span>
-              <a class="contact-link-value" id="contact-github" href="#" target="_blank" rel="noopener" data-interactive></a>
-            </div>
-            <div class="contact-link-row" id="contact-linkedin-row" style="display:none;">
-              <span class="contact-link-label">LINKEDIN</span>
-              <a class="contact-link-value" id="contact-linkedin" href="#" target="_blank" rel="noopener" data-interactive></a>
+          <div class="contact-header reveal-up">
+            <div class="section-label"><span>09</span> / CONNECT</div>
+            <div class="contact-status-badge">
+              <span class="status-pulse-dot"></span>
+              AVAILABLE FOR COLLABORATION
             </div>
           </div>
+          <h2 class="contact-headline reveal-up delay-1" id="contact-headline"></h2>
+          <p class="contact-desc reveal-up delay-2" id="contact-desc"></p>
+          
+          <div class="contact-cards reveal-up delay-3">
+            <div class="contact-card" id="card-email" data-interactive>
+              <div class="contact-card-icon">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="16" x="2" y="4" rx="2"></rect><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"></path></svg>
+              </div>
+              <div class="contact-card-info">
+                <div class="contact-card-label">DIRECT EMAIL</div>
+                <a class="contact-card-value" id="contact-email" href="#"></a>
+              </div>
+              <div class="contact-card-actions">
+                <button type="button" class="contact-copy-btn" id="contact-copy-email" title="Copy email" data-interactive>
+                  <span class="copy-text">COPY</span>
+                </button>
+              </div>
+            </div>
+
+            <div class="contact-card" id="contact-github-card" data-interactive>
+              <div class="contact-card-icon">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 22v-4a4.8 4.8 0 0 0-1-3.5c3 0 6-2 6-5.5.08-1.25-.27-2.48-1-3.5.28-1.15.28-2.35 0-3.5 0 0-1 0-3 1.5-2.64-.5-5.36-.5-8 0C6 2 5 2 5 2c-.3 1.15-.3 2.35 0 3.5A5.403 5.403 0 0 0 4 9c0 3.5 3 5.5 6 5.5-.39.49-.68 1.05-.85 1.65-.17.6-.22 1.23-.15 1.85v4"></path><path d="M9 18c-4.51 2-5-2-7-2"></path></svg>
+              </div>
+              <div class="contact-card-info">
+                <div class="contact-card-label">GITHUB REPOSITORIES</div>
+                <a class="contact-card-value" id="contact-github" href="#" target="_blank" rel="noopener"></a>
+              </div>
+              <div class="contact-card-actions">
+                <a class="contact-arrow-btn" id="contact-github-link" href="#" target="_blank" rel="noopener" data-interactive>
+                  <span>VISIT</span>
+                  <span>↗</span>
+                </a>
+              </div>
+            </div>
+          </div>
+
+          <div class="contact-meta-strip reveal-up delay-4">
+            <span>📍 India · IST (UTC+5:30)</span>
+            <span class="contact-meta-dot">•</span>
+            <span>⚡ Typical response: &lt; 24 hrs</span>
+          </div>
+
           <div class="contact-cta-row reveal-up delay-4">
-            <a class="btn-primary" id="contact-view-github" href="#" target="_blank" rel="noopener" style="display:none;" data-interactive>VIEW GITHUB <span style="margin-left:0.3rem;">→</span></a>
+            <a class="btn-primary" id="contact-primary-btn" href="#" data-interactive>SAY HELLO <span style="margin-left:0.3rem;">→</span></a>
+            <a class="btn-secondary" id="contact-view-github" href="#" target="_blank" rel="noopener" data-interactive>VIEW GITHUB <span style="margin-left:0.3rem;">↗</span></a>
           </div>
         </div>
       </div>
@@ -200,8 +234,8 @@
   </footer>
 
   <!-- ═══ Scripts ═══ -->
-  <script src="data.js?v=p7"></script>
-  <script src="app.js?v=p7"></script>
+  <script src="data.js?v=p8"></script>
+  <script src="app.js?v=p8"></script>
 
   <!-- ═══ Frame Scrubber Engine (preserved from original) ═══ -->
   <script>
