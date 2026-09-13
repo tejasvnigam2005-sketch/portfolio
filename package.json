@@ -1,0 +1,9 @@
+{
+  "name": "tejasv-portfolio",
+  "version": "1.0.0",
+  "description": "Personal portfolio of Tejasv Nigam",
+  "scripts": {
+    "dev": "python3 -m http.server 8080",
+    "start": "python3 -m http.server 8080"
+  }
+}

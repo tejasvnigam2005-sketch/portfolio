@@ -746,6 +746,100 @@
     });
   }
 
+  // ── Inverted Blend Cursor System ──────────────────────────
+  function initInvertedCursor() {
+    const isTouch = window.matchMedia('(hover: none) or (pointer: coarse)').matches;
+    if (isTouch) return;
+
+    const cursorEl = document.getElementById('cursor');
+    if (!cursorEl) return;
+
+    let targetX = -100;
+    let targetY = -100;
+    let currentX = -100;
+    let currentY = -100;
+    let isVisible = false;
+    const LERP_EASE = 0.2;
+
+    function render() {
+      if (isVisible) {
+        currentX += (targetX - currentX) * LERP_EASE;
+        currentY += (targetY - currentY) * LERP_EASE;
+        cursorEl.style.transform = `translate3d(${currentX}px, ${currentY}px, 0)`;
+      }
+      requestAnimationFrame(render);
+    }
+    requestAnimationFrame(render);
+
+    window.addEventListener('pointermove', (e) => {
+      targetX = e.clientX;
+      targetY = e.clientY;
+
+      if (!isVisible) {
+        isVisible = true;
+        currentX = targetX;
+        currentY = targetY;
+        document.body.classList.add('has-custom-cursor');
+        cursorEl.classList.add('is-visible');
+      }
+
+      const target = e.target;
+      let isInteractive = target ? target.closest(
+        'a, button, [data-interactive], input, select, textarea, ' +
+        '.nav-link, .nav-cta, .nav-brand, .btn-primary, .btn-secondary, ' +
+        'h1, h2, h3, h4, h5, h6, ' +
+        '.display-xl, .display-lg, .display-md, .heading, ' +
+        '.hero-headline, .hero-name, .hero-title, .hero-description, ' +
+        '.about-headline, .about-statement, .about-statement-card, .pillar, ' +
+        '.project-card, .project-name, .project-number, .project-short, .project-tag, .project-link, .project-dir-link, .project-visual, ' +
+        '.kinship-name, .kinship-badge, .kinship-role, .kinship-mission, .kinship-block, .kinship-block-title, .kinship-block-text, .kinship-grid, ' +
+        '.experience-card, .exp-company, .exp-role, .exp-headline, ' +
+        '.skills-headline, .skills-filter-btn, .skill-group, .skill-group-title, .skill-pill, ' +
+        '.proof-headline, .proof-stat, .proof-value, .proof-label, ' +
+        '.now-row, .now-key, .now-value, .now-status-badge, .now-headline, ' +
+        '.personal-interest, .personal-featured, .personal-featured-title, .personal-headline, ' +
+        '.contact-headline, .contact-card, .contact-copy-btn, .contact-value, .contact-label, ' +
+        '.section-label, .nav-hamburger'
+      ) : null;
+
+      // Smart fallback: if hovering over any large display text (>= 20px), magnify cursor
+      if (!isInteractive && target && target.nodeType === 1) {
+        try {
+          const fs = parseFloat(window.getComputedStyle(target).fontSize);
+          if (fs >= 20) {
+            isInteractive = target;
+          }
+        } catch (err) {}
+      }
+
+      if (isInteractive) {
+        cursorEl.classList.add('is-hovering');
+      } else {
+        cursorEl.classList.remove('is-hovering');
+      }
+    }, { passive: true });
+
+    window.addEventListener('pointerdown', () => {
+      cursorEl.classList.add('is-clicking');
+    });
+
+    window.addEventListener('pointerup', () => {
+      cursorEl.classList.remove('is-clicking');
+    });
+
+    document.addEventListener('mouseleave', () => {
+      isVisible = false;
+      document.body.classList.remove('has-custom-cursor');
+      cursorEl.classList.remove('is-visible');
+    });
+
+    document.addEventListener('mouseenter', () => {
+      isVisible = true;
+      document.body.classList.add('has-custom-cursor');
+      cursorEl.classList.add('is-visible');
+    });
+  }
+
   // ── Helpers ──────────────────────────────────────────────
   function esc(str) {
     if (!str) return '';
@@ -774,6 +868,9 @@
   // ── Initialize ───────────────────────────────────────────
   renderContent();
   updateSections(0);
+
+  // Initialize pure inverted blend cursor
+  initInvertedCursor();
 
   // Defer magnetic buttons to after DOM paint
   requestAnimationFrame(() => {
