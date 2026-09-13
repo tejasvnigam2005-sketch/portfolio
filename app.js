@@ -12,31 +12,30 @@
   // Each section has a distinct, non-overlapping range with clean buffers
   // between them so two sections can never collide or overlap.
   const SECTIONS = {
-    hero:       { start: 0.000, end: 0.065 },
-    about:      { start: 0.080, end: 0.150 },
-    work:       { start: 0.165, end: 0.395 },
-    kinship:    { start: 0.410, end: 0.490 },
-    experience: { start: 0.505, end: 0.575 },
-    skills:     { start: 0.590, end: 0.645 },
-    toolkit:    { start: 0.590, end: 0.645 },
-    proof:      { start: 0.660, end: 0.710 },
-    now:        { start: 0.725, end: 0.775 },
-    personal:   { start: 0.790, end: 0.840 },
-    contact:    { start: 0.855, end: 1.000 },
+    hero:       { start: 0.000, end: 0.070 },
+    about:      { start: 0.070, end: 0.160 },
+    work:       { start: 0.160, end: 0.400 },
+    kinship:    { start: 0.400, end: 0.495 },
+    experience: { start: 0.495, end: 0.585 },
+    skills:     { start: 0.585, end: 0.660 },
+    toolkit:    { start: 0.585, end: 0.660 },
+    proof:      { start: 0.660, end: 0.730 },
+    now:        { start: 0.730, end: 0.800 },
+    personal:   { start: 0.800, end: 0.865 },
+    contact:    { start: 0.865, end: 1.000 },
   };
 
   // Project sub-sections within the work range
-  // Card 0 starts at 0.208, after the section-work-header intro (0.165-0.198)
+  // Card 0 starts at 0.205, after the section-work-header intro (0.160-0.205)
   function getProjectRanges(count) {
-    const cardsStart = 0.208;
-    const cardsEnd = 0.386;
+    const cardsStart = 0.205;
+    const cardsEnd = 0.395;
     const totalSpan = cardsEnd - cardsStart;
     const slice = totalSpan / count;
-    const gap = 0.010; // clean buffer between cards so no cards collide
     const ranges = [];
     for (let i = 0; i < count; i++) {
       const pStart = cardsStart + i * slice;
-      const pEnd = pStart + slice - gap;
+      const pEnd = pStart + slice;
       ranges.push({
         start: pStart,
         end: pEnd,
@@ -550,24 +549,126 @@
     });
   }
 
-  // ── Section Visibility Controller ────────────────────────
-  function updateSections(progress) {
-    // 1. Determine which main section (if any) is active.
-    // Single-winner guarantee: only ONE main section can ever be active.
-    const mainKeys = ['hero', 'about', 'kinship', 'experience', 'skills', 'proof', 'now', 'personal', 'contact'];
-    let activeMainKey = null;
-    for (const key of mainKeys) {
-      const range = SECTIONS[key];
-      if (progress >= range.start && progress <= range.end) {
-        activeMainKey = key;
-        break;
-      }
+  // ── Scroll Reveal Calculation ────────────────────────────
+  // Smooth Hermite interpolation (smoothstep) for C1-continuous motion
+  function smoothstep(t) {
+    const c = Math.max(0, Math.min(1, t));
+    return c * c * (3 - 2 * c);
+  }
+
+  // Calculates scroll-driven reveal state: { opacity, translateY, scale, inView, isExit }
+  function calcSectionReveal(progress, start, end, options = {}) {
+    const span = end - start;
+    const enterRatio = options.enterRatio ?? 0.28;
+    const exitRatio = options.exitRatio ?? 0.24;
+    const maxSlide = options.slideY ?? 48; // max translateY in px
+    const maxExitSlide = options.exitSlideY ?? -38;
+    const minScale = options.minScale ?? 0.975;
+
+    // Out of view: before section begins
+    if (progress < start) {
+      return {
+        opacity: 0,
+        translateY: maxSlide,
+        scale: minScale,
+        inView: false,
+        isExit: false,
+      };
     }
+
+    // Out of view: after section ends
+    if (progress > end) {
+      return {
+        opacity: 0,
+        translateY: maxExitSlide,
+        scale: 0.98,
+        inView: false,
+        isExit: true,
+      };
+    }
+
+    const enterSpan = options.noEnter ? 0 : span * enterRatio;
+    const exitSpan = options.noExit ? 0 : span * exitRatio;
+
+    // Entrance phase: slides in smoothly from below (+maxSlide -> 0) and fades in (0 -> 1)
+    if (enterSpan > 0 && progress < start + enterSpan) {
+      const t = (progress - start) / enterSpan;
+      const ease = smoothstep(t);
+      return {
+        opacity: ease,
+        translateY: (1 - ease) * maxSlide,
+        scale: minScale + (1 - minScale) * ease,
+        inView: true,
+        isExit: false,
+      };
+    }
+
+    // Exit phase: glides upward (0 -> maxExitSlide) and fades out (1 -> 0)
+    if (exitSpan > 0 && progress > end - exitSpan) {
+      const t = (end - progress) / exitSpan; // 1.0 at start of exit, down to 0.0 at end
+      const ease = smoothstep(t);
+      return {
+        opacity: ease,
+        translateY: (1 - ease) * maxExitSlide,
+        scale: 1.0 - (1 - ease) * 0.02,
+        inView: true,
+        isExit: true,
+      };
+    }
+
+    // Full focus reading phase: centered, full opacity, interactive
+    return {
+      opacity: 1,
+      translateY: 0,
+      scale: 1,
+      inView: true,
+      isExit: false,
+    };
+  }
+
+  // ── Section Visibility & Scroll-Reveal Controller ──────────
+  function updateSections(progress) {
+    // 1. Main sections scroll-reveal
+    const mainKeys = ['hero', 'about', 'kinship', 'experience', 'skills', 'proof', 'now', 'personal', 'contact'];
 
     mainKeys.forEach(key => {
       const el = document.getElementById(`section-${key}`);
       if (!el) return;
-      const isActive = (key === activeMainKey);
+      const range = SECTIONS[key];
+      if (!range) return;
+
+      const isHero = (key === 'hero');
+      const isContact = (key === 'contact');
+
+      const reveal = calcSectionReveal(progress, range.start, range.end, {
+        noEnter: isHero,
+        noExit: isContact,
+        slideY: 48,
+        exitSlideY: -38,
+        minScale: 0.975,
+        enterRatio: 0.28,
+        exitRatio: 0.24,
+      });
+
+      const inner = el.querySelector('.section-inner');
+      const isVisible = reveal.opacity > 0.005;
+      const isInteractive = reveal.opacity > 0.55;
+
+      el.style.opacity = isVisible ? reveal.opacity.toFixed(3) : '0';
+      el.style.visibility = isVisible ? 'visible' : 'hidden';
+      el.style.pointerEvents = isInteractive ? 'auto' : 'none';
+
+      if (inner) {
+        if (isVisible) {
+          inner.style.transform = `translate3d(0, ${reveal.translateY.toFixed(1)}px, 0) scale(${reveal.scale.toFixed(4)})`;
+        } else {
+          inner.style.transform = reveal.isExit
+            ? 'translate3d(0, -38px, 0) scale(0.98)'
+            : 'translate3d(0, 48px, 0) scale(0.975)';
+        }
+      }
+
+      const isActive = isVisible && reveal.opacity > 0.35;
       el.classList.toggle('active', isActive);
 
       // Trigger counter animation when proof section becomes active
@@ -576,28 +677,71 @@
       }
     });
 
-    // 2. Work section header — active strictly during intro phase before project cards
+    // 2. Work section header — scroll-driven reveal
     const workHeader = document.getElementById('section-work-header');
     if (workHeader) {
-      const inWorkHeader = progress >= SECTIONS.work.start && progress <= 0.198;
-      workHeader.classList.toggle('active', inWorkHeader);
+      const headerReveal = calcSectionReveal(progress, SECTIONS.work.start, 0.205, {
+        slideY: 44,
+        exitSlideY: -35,
+        minScale: 0.98,
+        enterRatio: 0.28,
+        exitRatio: 0.28,
+      });
+      const headerVisible = headerReveal.opacity > 0.005;
+      workHeader.style.opacity = headerVisible ? headerReveal.opacity.toFixed(3) : '0';
+      workHeader.style.visibility = headerVisible ? 'visible' : 'hidden';
+      workHeader.style.pointerEvents = headerReveal.opacity > 0.55 ? 'auto' : 'none';
+
+      const headerInner = workHeader.querySelector('.section-inner');
+      if (headerInner) {
+        if (headerVisible) {
+          headerInner.style.transform = `translate3d(0, ${headerReveal.translateY.toFixed(1)}px, 0) scale(${headerReveal.scale.toFixed(4)})`;
+        } else {
+          headerInner.style.transform = headerReveal.isExit
+            ? 'translate3d(0, -35px, 0) scale(0.98)'
+            : 'translate3d(0, 44px, 0) scale(0.98)';
+        }
+      }
+      workHeader.classList.toggle('active', headerVisible && headerReveal.opacity > 0.35);
     }
 
-    // 3. Project cards — single-winner guarantee: only ONE card can ever be active
+    // 3. Project cards — scroll-driven stacked glide
     const projectCount = portfolio.projects.items.length;
     const projectRanges = getProjectRanges(projectCount);
-    let activeCardIndex = -1;
-    projectRanges.forEach((range, i) => {
-      if (progress >= range.start && progress <= range.end) {
-        activeCardIndex = i;
-      }
-    });
 
     for (let i = 0; i < projectCount; i++) {
       const card = document.getElementById(`project-${i}`);
-      if (card) {
-        card.classList.toggle('active', i === activeCardIndex);
+      if (!card) continue;
+      const range = projectRanges[i];
+      if (!range) continue;
+
+      const cardReveal = calcSectionReveal(progress, range.start, range.end, {
+        slideY: 44,
+        exitSlideY: -35,
+        minScale: 0.98,
+        enterRatio: 0.28,
+        exitRatio: 0.26,
+      });
+
+      const cardVisible = cardReveal.opacity > 0.005;
+      const cardInteractive = cardReveal.opacity > 0.55;
+
+      card.style.opacity = cardVisible ? cardReveal.opacity.toFixed(3) : '0';
+      card.style.visibility = cardVisible ? 'visible' : 'hidden';
+      card.style.pointerEvents = cardInteractive ? 'auto' : 'none';
+
+      const layout = card.querySelector('.project-layout');
+      if (layout) {
+        if (cardVisible) {
+          layout.style.transform = `translate3d(0, ${cardReveal.translateY.toFixed(1)}px, 0) scale(${cardReveal.scale.toFixed(4)})`;
+        } else {
+          layout.style.transform = cardReveal.isExit
+            ? 'translate3d(0, -35px, 0) scale(0.98)'
+            : 'translate3d(0, 44px, 0) scale(0.98)';
+        }
       }
+
+      card.classList.toggle('active', cardVisible && cardReveal.opacity > 0.35);
     }
 
     // 4. Update nav active states
@@ -634,13 +778,13 @@
   function updateBackgroundBlur(progress) {
     if (!canvasEl) return;
 
-    // Transition smoothly from work header (Image 1, ~0.190) into project cards (Image 2, ~0.208)
-    // Blur stays active while scrolling through all project cards (0.208 - 0.386)
-    // Transitions smoothly back to sharp when exiting to Kinship (0.386 - 0.406)
-    const fadeInStart = 0.190;
+    // Transition smoothly from work header into project cards (0.205)
+    // Blur stays active while scrolling through all project cards (0.205 - 0.395)
+    // Transitions smoothly back to sharp when exiting to Kinship (0.395 - 0.405)
+    const fadeInStart = 0.192;
     const fadeInEnd = 0.208;
-    const fadeOutStart = 0.386;
-    const fadeOutEnd = 0.406;
+    const fadeOutStart = 0.388;
+    const fadeOutEnd = 0.404;
     const maxBlur = 7; // Optimal depth-of-field blur: softens high-contrast noise while retaining subject silhouette
 
     let blur = 0;
@@ -679,10 +823,10 @@
     const range = SECTIONS[target];
     if (!range) return;
     
-    // For 'work', scroll directly to the "THINGS I'VE BUILT" header page (0.165 - 0.198)
+    // For 'work', scroll directly to the "THINGS I'VE BUILT" header page (0.160 - 0.205)
     // rather than the midpoint of all project cards
     const targetProgress = (target === 'work')
-      ? (0.165 + 0.198) / 2
+      ? (0.160 + 0.205) / 2
       : (range.start + range.end) / 2;
 
     const maxScroll = document.documentElement.scrollHeight - window.innerHeight;

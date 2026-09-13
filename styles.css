@@ -249,18 +249,13 @@ body {
   display: flex;
   opacity: 0;
   visibility: hidden;
-  transition: opacity 280ms var(--ease-out),
-              visibility 0s 280ms;
   padding: calc(var(--nav-height) + clamp(0.75rem, 2vh, 1.75rem)) clamp(1.5rem, 4vw, 4rem) clamp(1.5rem, 3vh, 3rem);
   box-sizing: border-box;
   pointer-events: none;
+  will-change: opacity;
 }
 
 .section.active {
-  opacity: 1;
-  visibility: visible;
-  transition: opacity 280ms var(--ease-out),
-              visibility 0s 0s;
   pointer-events: auto;
 }
 
@@ -272,6 +267,7 @@ body {
   flex-direction: column;
   justify-content: center;
   max-height: 100%;
+  will-change: transform;
 }
 
 /* ── Section Label ──────────────────────────────────────────── */
@@ -1006,19 +1002,14 @@ body {
   justify-content: center;
   opacity: 0;
   visibility: hidden;
-  transition: opacity 280ms var(--ease-out),
-              visibility 0s 280ms;
   padding: calc(var(--nav-height) + clamp(1rem, 3vh, 2.5rem)) clamp(1.5rem, 4vw, 4rem) clamp(1rem, 2.5vh, 2rem);
   box-sizing: border-box;
   pointer-events: none;
+  will-change: opacity;
 }
 
 .project-card.active {
-  opacity: 1;
-  visibility: visible;
   pointer-events: auto;
-  transition: opacity 280ms var(--ease-out),
-              visibility 0s 0s;
 }
 
 .project-layout {
@@ -1027,6 +1018,7 @@ body {
   gap: clamp(1.5rem, 3.5vw, 3rem);
   align-items: center;
   max-width: 1240px;
+  will-change: transform;
 }
 
 .project-layout.reverse {
@@ -2150,24 +2142,28 @@ body {
 
 /* ── Section reveal animation ───────────────────────────────── */
 .reveal-up {
-  opacity: 0;
-  transform: translateY(25px) scale(0.98);
-  transition: opacity var(--duration-slow) var(--ease-out),
-              transform var(--duration-slow) var(--ease-out);
+  opacity: 1;
+  transform: translateY(0);
+  will-change: transform;
+  transition: transform 0.45s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.section:not(.active) .reveal-up,
+.project-card:not(.active) .reveal-up {
+  transform: translateY(16px);
 }
 
 .section.active .reveal-up,
 .project-card.active .reveal-up {
-  opacity: 1;
-  transform: translateY(0) scale(1);
+  transform: translateY(0);
 }
 
-.reveal-up.delay-1 { transition-delay: 80ms; }
-.reveal-up.delay-2 { transition-delay: 160ms; }
-.reveal-up.delay-3 { transition-delay: 240ms; }
-.reveal-up.delay-4 { transition-delay: 320ms; }
-.reveal-up.delay-5 { transition-delay: 400ms; }
-.reveal-up.delay-6 { transition-delay: 480ms; }
+.reveal-up.delay-1 { transition-delay: 40ms; }
+.reveal-up.delay-2 { transition-delay: 80ms; }
+.reveal-up.delay-3 { transition-delay: 120ms; }
+.reveal-up.delay-4 { transition-delay: 160ms; }
+.reveal-up.delay-5 { transition-delay: 200ms; }
+.reveal-up.delay-6 { transition-delay: 240ms; }
 
 /* ═══════════════════════════════════════════════════════════════
    RESPONSIVE
