@@ -51,6 +51,7 @@
   let previouslyActive = new Set();
 
   // ── DOM References ───────────────────────────────────────
+  const canvasEl = document.getElementById('canvas');
   const overlay = document.getElementById('overlay');
   const nav = document.querySelector('.nav');
   const scrollIndicator = document.getElementById('scroll-indicator');
@@ -564,6 +565,54 @@
     // 6. Scroll indicator
     if (scrollIndicator) {
       scrollIndicator.style.width = `${progress * 100}%`;
+    }
+
+    // 7. Dynamic background blur (Image 1 Selected Work header -> Image 2 Project Cards)
+    updateBackgroundBlur(progress);
+  }
+
+  // ── Background Blur Controller ───────────────────────────
+  let currentBlurValue = -1;
+
+  function updateBackgroundBlur(progress) {
+    if (!canvasEl) return;
+
+    // Transition smoothly from work header (Image 1, ~0.190) into project cards (Image 2, ~0.208)
+    // Blur stays active while scrolling through all project cards (0.208 - 0.386)
+    // Transitions smoothly back to sharp when exiting to Kinship (0.386 - 0.406)
+    const fadeInStart = 0.190;
+    const fadeInEnd = 0.208;
+    const fadeOutStart = 0.386;
+    const fadeOutEnd = 0.406;
+    const maxBlur = 7; // Optimal depth-of-field blur: softens high-contrast noise while retaining subject silhouette
+
+    let blur = 0;
+
+    if (progress >= fadeInStart && progress <= fadeOutEnd) {
+      if (progress < fadeInEnd) {
+        const t = (progress - fadeInStart) / (fadeInEnd - fadeInStart);
+        blur = (0.5 - 0.5 * Math.cos(t * Math.PI)) * maxBlur;
+      } else if (progress > fadeOutStart) {
+        const t = (fadeOutEnd - progress) / (fadeOutEnd - fadeOutStart);
+        blur = (0.5 - 0.5 * Math.cos(t * Math.PI)) * maxBlur;
+      } else {
+        blur = maxBlur;
+      }
+    }
+
+    // Quantize to 1 decimal place to prevent redundant DOM updates
+    const roundedBlur = Math.round(blur * 10) / 10;
+    if (roundedBlur === currentBlurValue) return;
+    currentBlurValue = roundedBlur;
+
+    if (roundedBlur <= 0.1) {
+      canvasEl.style.filter = '';
+      canvasEl.style.transform = '';
+    } else {
+      const scale = (1 + (roundedBlur / maxBlur) * 0.025).toFixed(3);
+      const brightness = (1 - (roundedBlur / maxBlur) * 0.07).toFixed(2);
+      canvasEl.style.filter = `blur(${roundedBlur}px) brightness(${brightness})`;
+      canvasEl.style.transform = `scale(${scale})`;
     }
   }
 
