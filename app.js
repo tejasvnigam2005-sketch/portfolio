@@ -18,6 +18,7 @@
     kinship:    { start: 0.410, end: 0.490 },
     experience: { start: 0.505, end: 0.575 },
     skills:     { start: 0.590, end: 0.645 },
+    toolkit:    { start: 0.590, end: 0.645 },
     proof:      { start: 0.660, end: 0.710 },
     now:        { start: 0.725, end: 0.775 },
     personal:   { start: 0.790, end: 0.840 },
@@ -611,7 +612,8 @@
       }
     }
     navLinks.forEach(link => {
-      link.classList.toggle('active', link.dataset.target === activeTarget);
+      const linkTarget = (link.dataset.target === 'toolkit') ? 'skills' : link.dataset.target;
+      link.classList.toggle('active', linkTarget === activeTarget);
     });
 
     // 5. Nav scroll state
@@ -673,6 +675,7 @@
 
   // ── Scroll to Section ────────────────────────────────────
   function scrollToSection(target) {
+    if (target === 'toolkit') target = 'skills';
     const range = SECTIONS[target];
     if (!range) return;
     

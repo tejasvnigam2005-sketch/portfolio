@@ -211,6 +211,7 @@ const portfolio = {
       { label: 'WORK', target: 'work' },
       { label: 'ABOUT', target: 'about' },
       { label: 'EXPERIENCE', target: 'experience' },
+      { label: 'TOOLKIT', target: 'skills' },
       { label: 'KINSHIP', target: 'kinship' },
       { label: 'CONTACT', target: 'contact' },
     ],
