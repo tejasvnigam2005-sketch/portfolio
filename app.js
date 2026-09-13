@@ -646,8 +646,13 @@
   function scrollToSection(target) {
     const range = SECTIONS[target];
     if (!range) return;
-    // Scroll directly into the comfortable center of the section's active range
-    const targetProgress = (range.start + range.end) / 2;
+    
+    // For 'work', scroll directly to the "THINGS I'VE BUILT" header page (0.165 - 0.198)
+    // rather than the midpoint of all project cards
+    const targetProgress = (target === 'work')
+      ? (0.165 + 0.198) / 2
+      : (range.start + range.end) / 2;
+
     const maxScroll = document.documentElement.scrollHeight - window.innerHeight;
     const targetScroll = targetProgress * maxScroll;
     window.scrollTo({ top: targetScroll, behavior: 'smooth' });
