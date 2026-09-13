@@ -110,7 +110,7 @@ const portfolio = {
   // ── Experience ────────────────────────────────────────────
   experience: {
     sectionLabel: '04 / EXPERIENCE',
-    headline: 'WHERE I\'VE BUILT',
+    headline: 'VENTURES & EXPERIENCE',
     items: [
       {
         company: 'Kinship',
