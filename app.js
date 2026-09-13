@@ -117,16 +117,42 @@
     document.getElementById('about-headline').textContent = d.about.headline;
     document.getElementById('about-statement').textContent = d.about.statement;
 
+    const pillarIcons = [
+      // Engineering
+      '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 2 7 12 12 22 7 12 2"></polygon><polyline points="2 17 12 22 22 17"></polyline><polyline points="2 12 12 17 22 12"></polyline></svg>',
+      // AI
+      '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/></svg>',
+      // Product
+      '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><circle cx="12" cy="12" r="4"></circle><line x1="4.93" y1="4.93" x2="9.17" y2="9.17"></line><line x1="14.83" y1="14.83" x2="19.07" y2="19.07"></line><line x1="14.83" y1="9.17" x2="19.07" y2="4.93"></line><line x1="4.93" y1="19.07" x2="9.17" y2="14.83"></line></svg>',
+      // Experimentation
+      '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 2v7.527a2 2 0 0 1-.211.896L4.72 20.55a1 1 0 0 0 .9 1.45h12.76a1 1 0 0 0 .9-1.45l-5.069-10.127A2 2 0 0 1 14 9.527V2"></path><path d="M8.5 2h7"></path><path d="M7 16h10"></path></svg>',
+    ];
+
+    const pillarTags = ['SYSTEMS', 'INTELLIGENCE', 'EXPERIENCE', 'PROTOTYPING'];
+
     const pillarsEl = document.getElementById('about-pillars');
-    d.about.pillars.forEach((p, i) => {
-      const div = document.createElement('div');
-      div.className = `pillar reveal-up delay-${i + 2}`;
-      div.innerHTML = `
-        <div class="pillar-title">${esc(p.title)}</div>
-        <div class="pillar-desc">${esc(p.description)}</div>
-      `;
-      pillarsEl.appendChild(div);
-    });
+    if (pillarsEl) {
+      pillarsEl.innerHTML = '';
+      d.about.pillars.forEach((p, i) => {
+        const div = document.createElement('div');
+        div.className = `pillar reveal-up delay-${i + 2}`;
+        div.setAttribute('data-interactive', '');
+        const iconSvg = pillarIcons[i] || pillarIcons[0];
+        const tagText = pillarTags[i] || 'CORE';
+
+        div.innerHTML = `
+          <div class="pillar-header">
+            <div class="pillar-title-wrap">
+              <span class="pillar-icon">${iconSvg}</span>
+              <span class="pillar-title">${esc(p.title)}</span>
+            </div>
+            <span class="pillar-badge">${tagText}</span>
+          </div>
+          <p class="pillar-desc">${esc(p.description)}</p>
+        `;
+        pillarsEl.appendChild(div);
+      });
+    }
 
     // — Projects —
     document.getElementById('work-label').innerHTML = formatLabel(d.projects.sectionLabel);
