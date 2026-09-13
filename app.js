@@ -281,18 +281,92 @@
     document.getElementById('skills-label').innerHTML = formatLabel(d.skills.sectionLabel);
     document.getElementById('skills-headline').textContent = d.skills.headline;
 
+    const groupIcons = [
+      // AI & Intelligence
+      '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/></svg>',
+      // Software
+      '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 18 22 12 16 6"></polyline><polyline points="8 6 2 12 8 18"></polyline></svg>',
+      // Frontend
+      '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect><line x1="8" y1="21" x2="16" y2="21"></line><line x1="12" y1="17" x2="12" y2="21"></line></svg>',
+      // Data
+      '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="12" cy="5" rx="9" ry="3"></ellipse><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"></path><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"></path></svg>',
+      // Cloud & Infrastructure
+      '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="8" rx="2" ry="2"></rect><rect x="2" y="14" width="20" height="8" rx="2" ry="2"></rect><line x1="6" y1="6" x2="6.01" y2="6"></line><line x1="6" y1="18" x2="6.01" y2="18"></line></svg>',
+    ];
+
+    const tabShortNames = ['ALL', 'AI', 'SOFTWARE', 'FRONTEND', 'DATA', 'CLOUD'];
+
+    const filterTabsContainer = document.getElementById('skills-filter-tabs');
     const skillsGrid = document.getElementById('skills-grid');
+    if (filterTabsContainer) filterTabsContainer.innerHTML = '';
+    if (skillsGrid) skillsGrid.innerHTML = '';
+
+    const cardEls = [];
     d.skills.groups.forEach((g, i) => {
+      const isFeatured = i === 0;
       const div = document.createElement('div');
-      div.className = `skill-group reveal-up delay-${i + 1}`;
+      div.className = `skill-group reveal-up delay-${i + 1}${isFeatured ? ' featured' : ''}`;
+      div.dataset.groupIndex = i;
+      div.setAttribute('data-interactive', '');
+
+      const iconSvg = groupIcons[i] || groupIcons[0];
+      const badgeText = isFeatured ? 'CORE FOCUS' : `${g.items.length} TOOLS`;
+
       div.innerHTML = `
-        <div class="skill-group-title">${esc(g.title)}</div>
+        <div class="skill-group-header">
+          <div class="skill-group-title-wrap">
+            <span class="skill-group-icon">${iconSvg}</span>
+            <span class="skill-group-title">${esc(g.title)}</span>
+          </div>
+          <span class="skill-group-badge">${badgeText}</span>
+        </div>
         <div class="skill-items">
-          ${g.items.map(item => `<div class="skill-item">${esc(item)}</div>`).join('')}
+          ${g.items.map(item => `
+            <span class="skill-chip">
+              <span class="skill-chip-dot"></span>
+              ${esc(item)}
+            </span>
+          `).join('')}
         </div>
       `;
       skillsGrid.appendChild(div);
+      cardEls.push(div);
     });
+
+    if (filterTabsContainer) {
+      tabShortNames.forEach((name, tabIndex) => {
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = `skill-tab-btn${tabIndex === 0 ? ' active' : ''}`;
+        btn.setAttribute('data-interactive', '');
+
+        let countText = '';
+        if (tabIndex === 0) {
+          const totalCount = d.skills.groups.reduce((sum, g) => sum + g.items.length, 0);
+          countText = `<span class="skill-tab-count">${totalCount}</span>`;
+        } else {
+          const groupCount = d.skills.groups[tabIndex - 1]?.items?.length || 0;
+          countText = `<span class="skill-tab-count">${groupCount}</span>`;
+        }
+
+        btn.innerHTML = `${name} ${countText}`;
+
+        btn.addEventListener('click', () => {
+          document.querySelectorAll('.skill-tab-btn').forEach(b => b.classList.remove('active'));
+          btn.classList.add('active');
+
+          if (tabIndex === 0) {
+            cardEls.forEach(card => card.classList.remove('hidden'));
+          } else {
+            cardEls.forEach((card, idx) => {
+              card.classList.toggle('hidden', idx !== (tabIndex - 1));
+            });
+          }
+        });
+
+        filterTabsContainer.appendChild(btn);
+      });
+    }
 
     // — Proof —
     document.getElementById('proof-label').innerHTML = formatLabel(d.proof.sectionLabel);
