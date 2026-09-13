@@ -740,6 +740,84 @@ body {
   margin-bottom: var(--space-2xl);
 }
 
+/* ── Project Directory — clickable index of projects ── */
+.project-directory {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  margin-top: 2rem;
+  pointer-events: auto;
+  max-width: 600px;
+}
+
+.project-dir-link {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 0.9rem 1.25rem;
+  border-bottom: 1px solid var(--border);
+  text-decoration: none;
+  color: var(--text-secondary);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  cursor: pointer;
+  position: relative;
+}
+
+.project-dir-link:first-child {
+  border-top: 1px solid var(--border);
+}
+
+.project-dir-link:hover {
+  color: var(--text-primary);
+  background: var(--accent-subtle);
+  padding-left: 1.75rem;
+  border-color: var(--border-accent);
+}
+
+.project-dir-link:hover + .project-dir-link {
+  border-top-color: var(--border-accent);
+}
+
+.project-dir-number {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  letter-spacing: 0.05em;
+  color: var(--accent);
+  min-width: 1.5rem;
+  opacity: 0.7;
+  transition: opacity 0.3s;
+}
+
+.project-dir-link:hover .project-dir-number {
+  opacity: 1;
+}
+
+.project-dir-name {
+  font-family: var(--font-display);
+  font-size: 1.15rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  flex: 1;
+  transition: letter-spacing 0.3s;
+}
+
+.project-dir-link:hover .project-dir-name {
+  letter-spacing: 0.05em;
+}
+
+.project-dir-arrow {
+  font-size: 1rem;
+  color: var(--accent);
+  opacity: 0;
+  transform: translateX(-8px);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.project-dir-link:hover .project-dir-arrow {
+  opacity: 1;
+  transform: translateX(0);
+}
+
 /* ── Projects Container — fixed viewport overlay for card stack ── */
 #projects-container {
   position: fixed;
@@ -764,7 +842,7 @@ body {
   visibility: hidden;
   transition: opacity 280ms var(--ease-out),
               visibility 0s 280ms;
-  padding: calc(var(--nav-height) + clamp(4.5rem, 10vh, 7.5rem)) clamp(1.5rem, 4vw, 4rem) clamp(1.5rem, 3vh, 3rem);
+  padding: calc(var(--nav-height) + clamp(1rem, 3vh, 2.5rem)) clamp(1.5rem, 4vw, 4rem) clamp(1rem, 2.5vh, 2rem);
   box-sizing: border-box;
   pointer-events: none;
 }
@@ -780,9 +858,9 @@ body {
 .project-layout {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: var(--space-3xl);
+  gap: clamp(1.5rem, 3.5vw, 3rem);
   align-items: center;
-  max-width: 1200px;
+  max-width: 1240px;
 }
 
 .project-layout.reverse {
@@ -808,26 +886,26 @@ body {
 
 .project-name {
   font-family: var(--font-display);
-  font-size: clamp(1.5rem, 3vw, 2.2rem);
+  font-size: clamp(1.4rem, 2.5vw, 2.1rem);
   font-weight: 700;
   letter-spacing: -0.02em;
   line-height: 1.15;
   color: var(--text-primary);
-  margin-bottom: var(--space-sm);
+  margin-bottom: 0.35rem;
 }
 
 .project-short {
-  font-size: 0.95rem;
-  line-height: 1.75;
+  font-size: clamp(0.85rem, 1vw, 0.92rem);
+  line-height: 1.6;
   color: var(--text-secondary);
-  margin-bottom: var(--space-lg);
-  max-width: 30em;
+  margin-bottom: var(--space-sm);
+  max-width: 32em;
 }
 
 .project-tags {
   display: flex;
-  gap: var(--space-sm);
-  margin-bottom: var(--space-xl);
+  gap: 0.4rem;
+  margin-bottom: var(--space-sm);
   flex-wrap: wrap;
 }
 
@@ -838,7 +916,7 @@ body {
   letter-spacing: 0.12em;
   text-transform: uppercase;
   color: var(--accent-bright);
-  padding: 0.35rem 0.8rem;
+  padding: 0.3rem 0.7rem;
   border: 1px solid var(--border-accent);
   border-radius: 20px;
   transition: all var(--duration-fast) ease;
@@ -849,66 +927,39 @@ body {
   border-color: var(--border-hover);
 }
 
-.project-details {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-lg);
-}
-
-.project-detail-block h4 {
-  font-family: var(--font-mono);
-  font-size: 0.62rem;
-  font-weight: 600;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  color: var(--accent-bright);
-  margin-bottom: var(--space-xs);
-}
-
-.project-detail-block p {
-  font-size: 0.88rem;
-  line-height: 1.7;
-  color: var(--text-secondary);
-}
-
 .project-links {
   display: flex;
-  gap: var(--space-lg);
-  margin-top: var(--space-lg);
+  gap: 0.75rem;
+  margin-top: 0.2rem;
+  margin-bottom: var(--space-md);
+  flex-wrap: wrap;
 }
 
 .project-link {
-  font-size: 0.7rem;
+  font-family: var(--font-mono);
+  font-size: 0.66rem;
   font-weight: 600;
   letter-spacing: 0.08em;
   text-transform: uppercase;
-  color: var(--text-primary);
+  color: #fff;
   text-decoration: none;
   display: inline-flex;
   align-items: center;
-  gap: 0.4rem;
-  padding: 0.5rem 0;
-  transition: all var(--duration-normal) ease;
+  gap: 0.45rem;
+  padding: 0.42rem 0.95rem;
+  background: rgba(99, 102, 241, 0.14);
+  border: 1px solid rgba(99, 102, 241, 0.35);
+  border-radius: 8px;
+  transition: all var(--duration-fast) ease;
   position: relative;
 }
 
-.project-link::after {
-  content: '';
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  width: 0;
-  height: 1px;
-  background: var(--gradient-accent);
-  transition: width var(--duration-normal) var(--ease-out);
-}
-
 .project-link:hover {
-  color: var(--accent-bright);
-}
-
-.project-link:hover::after {
-  width: 100%;
+  background: var(--gradient-accent);
+  border-color: transparent;
+  color: #fff;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 15px rgba(99, 102, 241, 0.35);
 }
 
 .project-link-arrow {
@@ -916,7 +967,29 @@ body {
 }
 
 .project-link:hover .project-link-arrow {
-  transform: translateX(5px);
+  transform: translateX(4px);
+}
+
+.project-details {
+  display: flex;
+  flex-direction: column;
+  gap: clamp(0.45rem, 1.1vh, 0.8rem);
+}
+
+.project-detail-block h4 {
+  font-family: var(--font-mono);
+  font-size: 0.6rem;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--accent-bright);
+  margin-bottom: 0.15rem;
+}
+
+.project-detail-block p {
+  font-size: clamp(0.78rem, 0.95vw, 0.85rem);
+  line-height: 1.5;
+  color: var(--text-secondary);
 }
 
 /* Project visual placeholder — animated gradient mesh */

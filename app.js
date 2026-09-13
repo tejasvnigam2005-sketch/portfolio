@@ -131,7 +131,26 @@
     document.getElementById('work-label').innerHTML = formatLabel(d.projects.sectionLabel);
     document.getElementById('work-headline').textContent = d.projects.headline;
 
+    // Build project directory links
+    const projectDir = document.getElementById('project-directory');
+    if (projectDir) {
+      projectDir.innerHTML = '';
+      d.projects.items.forEach((proj, i) => {
+        const link = document.createElement('a');
+        link.className = 'project-dir-link';
+        link.href = `#project-${i}`;
+        link.setAttribute('data-interactive', '');
+        link.innerHTML = `<span class="project-dir-number">${proj.number}</span><span class="project-dir-name">${esc(proj.name)}</span><span class="project-dir-arrow">→</span>`;
+        link.addEventListener('click', (e) => {
+          e.preventDefault();
+          scrollToProject(i);
+        });
+        projectDir.appendChild(link);
+      });
+    }
+
     const projectsContainer = document.getElementById('projects-container');
+    projectsContainer.innerHTML = '';
     d.projects.items.forEach((proj, i) => {
       const card = document.createElement('div');
       card.className = 'project-card';
@@ -162,6 +181,13 @@
         linksHtml += '</div>';
       }
 
+      let visualInner = '';
+      if (proj.image) {
+        visualInner = `<img src="${esc(proj.image)}" alt="${esc(proj.name)}" style="width:100%;height:100%;object-fit:cover;object-position:top center;border-radius:12px;" />`;
+      } else {
+        visualInner = `<span class="project-visual-label">${esc(proj.name)}</span>`;
+      }
+
       card.innerHTML = `
         <div class="section-inner">
           <div class="section-label reveal-up"><span>02</span> / SELECTED WORK &nbsp;·&nbsp; ${esc(proj.number)}</div>
@@ -170,17 +196,17 @@
               <div class="project-name reveal-up delay-1">${esc(proj.name)}</div>
               <div class="project-short reveal-up delay-2">${esc(proj.shortDescription)}</div>
               ${tagsHtml ? `<div class="reveal-up delay-2">${tagsHtml}</div>` : ''}
+              ${linksHtml ? `<div class="reveal-up delay-2">${linksHtml}</div>` : ''}
               <div class="project-details reveal-up delay-3">
                 ${proj.problem ? `<div class="project-detail-block"><h4>Problem</h4><p>${esc(proj.problem)}</p></div>` : ''}
                 ${proj.build ? `<div class="project-detail-block"><h4>Build</h4><p>${esc(proj.build)}</p></div>` : ''}
                 ${proj.result ? `<div class="project-detail-block"><h4>Impact</h4><p>${esc(proj.result)}</p></div>` : ''}
               </div>
               ${stackHtml ? `<div class="reveal-up delay-4">${stackHtml}</div>` : ''}
-              <div class="reveal-up delay-5">${linksHtml}</div>
             </div>
             <div class="project-visual-col reveal-up delay-3">
               <div class="project-visual">
-                <span class="project-visual-label">${esc(proj.name)}</span>
+                ${visualInner}
               </div>
             </div>
           </div>
@@ -472,6 +498,17 @@
     const range = SECTIONS[target];
     if (!range) return;
     // Scroll directly into the comfortable center of the section's active range
+    const targetProgress = (range.start + range.end) / 2;
+    const maxScroll = document.documentElement.scrollHeight - window.innerHeight;
+    const targetScroll = targetProgress * maxScroll;
+    window.scrollTo({ top: targetScroll, behavior: 'smooth' });
+  }
+
+  // ── Scroll to Project Card ───────────────────────────────
+  function scrollToProject(index) {
+    const projectRanges = getProjectRanges(portfolio.projects.items.length);
+    if (!projectRanges[index]) return;
+    const range = projectRanges[index];
     const targetProgress = (range.start + range.end) / 2;
     const maxScroll = document.documentElement.scrollHeight - window.innerHeight;
     const targetScroll = targetProgress * maxScroll;
