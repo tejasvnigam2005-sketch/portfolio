@@ -1001,6 +1001,181 @@
     return esc(label);
   }
 
+  // ── Blurry Loading Overlay Controller ────────────────────
+  function initLoadingScreen() {
+    const overlay = document.getElementById('loader-overlay');
+    if (!overlay) return;
+
+    const percentEl = document.getElementById('loader-percent');
+    const statusEl = document.getElementById('loader-status');
+    const barFill = document.getElementById('loader-bar-fill');
+    const circleBar = document.getElementById('loader-circle-bar');
+    const countEl = document.getElementById('loader-asset-count');
+    const skipBtn = document.getElementById('loader-skip-btn');
+    const badgeText = overlay.querySelector('.loader-badge-text');
+
+    // Ensure we start at top and lock body scroll while loading
+    window.scrollTo(0, 0);
+    document.body.classList.add('is-loading');
+
+    const CIRCLE_CIRCUMFERENCE = 263.89; // 2 * Math.PI * 42
+
+    let targetPercent = 0;
+    let currentPercent = 0;
+    let isDone = false;
+    let isDismissed = false;
+
+    const statusMessages = [
+      { threshold: 0, text: 'Calibrating interactive canvas...' },
+      { threshold: 22, text: 'Preloading visual frame sequence...' },
+      { threshold: 48, text: 'Synchronizing high-DPI shaders...' },
+      { threshold: 72, text: 'Configuring neural interfaces...' },
+      { threshold: 92, text: 'Finalizing presentation viewport...' },
+      { threshold: 100, text: 'System ready · Welcome' }
+    ];
+
+    function updateStatus(pct) {
+      if (!statusEl) return;
+      for (let i = statusMessages.length - 1; i >= 0; i--) {
+        if (pct >= statusMessages[i].threshold) {
+          statusEl.textContent = statusMessages[i].text;
+          break;
+        }
+      }
+    }
+
+    // Hook called by frame preloader engine
+    window._onAssetLoaded = function(loaded, total) {
+      if (countEl) {
+        countEl.textContent = `${loaded} / ${total} FRAMES`;
+      }
+      const assetRatio = Math.min(1, loaded / total);
+      const assetPct = Math.round(assetRatio * 100);
+      if (assetPct > targetPercent) {
+        targetPercent = assetPct;
+      }
+    };
+
+    const startTime = performance.now();
+    const MIN_DURATION = 1400; // minimum duration (ms) for silky smooth progress
+
+    function tick(now) {
+      if (isDismissed) return;
+
+      const elapsed = now - startTime;
+      const timeRatio = Math.min(1, elapsed / MIN_DURATION);
+      // Eased cubic progress
+      const easedTimeProgress = 1 - Math.pow(1 - timeRatio, 3);
+      const simulatedPercent = Math.round(easedTimeProgress * 100);
+
+      const effectiveTarget = Math.max(targetPercent, simulatedPercent);
+
+      if (currentPercent < effectiveTarget) {
+        const step = (effectiveTarget - currentPercent) * 0.14;
+        currentPercent += (step < 0.4) ? 0.4 : step;
+        if (currentPercent > 100) currentPercent = 100;
+      }
+
+      const displayPct = Math.min(100, Math.floor(currentPercent));
+
+      if (percentEl) {
+        percentEl.textContent = `${displayPct}%`;
+      }
+
+      if (barFill) {
+        barFill.style.width = `${displayPct}%`;
+      }
+
+      if (circleBar) {
+        const offset = CIRCLE_CIRCUMFERENCE * (1 - displayPct / 100);
+        circleBar.style.strokeDashoffset = offset.toFixed(2);
+      }
+
+      updateStatus(displayPct);
+
+      const urlParams = new URLSearchParams(window.location.search);
+      const isPreview = urlParams.has('preview');
+
+      if (displayPct >= 100 && !isDone && !isPreview) {
+        isDone = true;
+        if (badgeText) badgeText.textContent = 'ONLINE';
+        overlay.classList.add('is-ready');
+        if (statusEl) {
+          statusEl.textContent = 'System ready · Welcome';
+          statusEl.style.color = '#c7d2fe';
+        }
+        if (skipBtn) {
+          skipBtn.innerHTML = '<span>ENTER PORTFOLIO</span> <span class="loader-skip-arrow">→</span>';
+        }
+
+        // Automatic seamless transition out after a brief celebratory moment
+        setTimeout(() => {
+          dismiss();
+        }, 420);
+      }
+
+      if (isPreview && displayPct >= 78) {
+        // Freeze at 78% in preview mode so we can inspect layout and blur
+        return;
+      }
+
+      if (!isDismissed && (!isDone || currentPercent < 100)) {
+        requestAnimationFrame(tick);
+      }
+    }
+
+    function dismiss() {
+      if (isDismissed) return;
+      isDismissed = true;
+
+      // Ensure visuals are at 100% on dismissal
+      if (percentEl) percentEl.textContent = '100%';
+      if (barFill) barFill.style.width = '100%';
+      if (circleBar) circleBar.style.strokeDashoffset = '0';
+      if (badgeText) badgeText.textContent = 'ONLINE';
+      overlay.classList.add('is-ready');
+
+      // Trigger transition to unblur and dissolve overlay
+      overlay.classList.add('is-loaded');
+      document.body.classList.remove('is-loading');
+
+      // Hide from rendering tree after fade out
+      setTimeout(() => {
+        overlay.setAttribute('aria-hidden', 'true');
+        overlay.style.display = 'none';
+      }, 900);
+    }
+
+    if (skipBtn) {
+      skipBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        dismiss();
+      });
+    }
+
+    overlay.addEventListener('click', () => {
+      if (performance.now() - startTime > 350) {
+        dismiss();
+      }
+    });
+
+    window.addEventListener('keydown', (e) => {
+      if (!isDismissed && (e.key === 'Enter' || e.key === ' ' || e.key === 'Escape')) {
+        dismiss();
+      }
+    });
+
+    // Provide preview trigger for testing
+    window.showLoadingScreen = function() {
+      overlay.style.display = 'flex';
+      overlay.removeAttribute('aria-hidden');
+      overlay.classList.remove('is-loaded', 'is-ready');
+      initLoadingScreen();
+    };
+
+    requestAnimationFrame(tick);
+  }
+
   // ── Integration with Frame Engine ────────────────────────
   // The frame engine in index.html updates currentProgress.
   // We expose a hook so it can call our update function.
@@ -1015,6 +1190,9 @@
 
   // Initialize pure inverted blend cursor
   initInvertedCursor();
+
+  // Initialize blurry loading overlay
+  initLoadingScreen();
 
   // Defer magnetic buttons to after DOM paint
   requestAnimationFrame(() => {

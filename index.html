@@ -8,7 +8,7 @@
   <meta name="theme-color" content="#020611">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link rel="stylesheet" href="styles.css?v=p21">
+  <link rel="stylesheet" href="styles.css?v=p22">
 </head>
 <body>
 
@@ -22,6 +22,58 @@
   <div class="ambient-glow ambient-glow--top-right" aria-hidden="true"></div>
   <div class="ambient-glow ambient-glow--bottom-left" aria-hidden="true"></div>
   <div class="ambient-glow ambient-glow--center" aria-hidden="true"></div>
+
+  <!-- ═══ Blurry Loading Overlay (Hero Preloader) ═══ -->
+  <div id="loader-overlay" class="loader-overlay" role="dialog" aria-modal="true" aria-label="Loading site">
+    <div class="loader-backdrop"></div>
+    <div class="loader-ambient-glow" aria-hidden="true"></div>
+    <div class="loader-card" id="loader-card">
+      <div class="loader-header">
+        <div class="loader-badge">
+          <span class="loader-pulse-dot"></span>
+          <span class="loader-badge-text">INITIALIZING</span>
+        </div>
+        <div class="loader-brand-mono">TEJASV // AI ENGINEER</div>
+      </div>
+
+      <div class="loader-center-graphic">
+        <svg class="loader-svg-ring" viewBox="0 0 100 100" aria-hidden="true">
+          <defs>
+            <linearGradient id="loaderRingGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stop-color="#6366f1" />
+              <stop offset="50%" stop-color="#a855f7" />
+              <stop offset="100%" stop-color="#ec4899" />
+            </linearGradient>
+          </defs>
+          <circle class="loader-circle-bg" cx="50" cy="50" r="42"></circle>
+          <circle class="loader-circle-bar" id="loader-circle-bar" cx="50" cy="50" r="42"></circle>
+        </svg>
+        <div class="loader-monogram">
+          <span class="loader-monogram-text">TN</span>
+          <span class="loader-monogram-sparkle">✦</span>
+        </div>
+      </div>
+
+      <div class="loader-metric">
+        <div class="loader-percent" id="loader-percent" aria-live="polite">0%</div>
+        <div class="loader-status" id="loader-status">Preloading cinematic engine...</div>
+      </div>
+
+      <div class="loader-bar-track">
+        <div class="loader-bar-fill" id="loader-bar-fill" style="width: 0%;">
+          <div class="loader-bar-glow"></div>
+        </div>
+      </div>
+
+      <div class="loader-footer">
+        <div class="loader-asset-count" id="loader-asset-count">PREPARING FRAMES</div>
+        <button type="button" class="loader-skip-btn" id="loader-skip-btn" data-interactive aria-label="Skip to portfolio">
+          <span>ENTER DIRECTLY</span>
+          <span class="loader-skip-arrow">→</span>
+        </button>
+      </div>
+    </div>
+  </div>
 
   <!-- ═══ Inverted Blend Cursor ═══ -->
   <div id="cursor" aria-hidden="true"></div>
@@ -232,7 +284,7 @@
 
   <!-- ═══ Scripts ═══ -->
   <script src="data.js?v=p10"></script>
-  <script src="app.js?v=p21"></script>
+  <script src="app.js?v=p22"></script>
 
   <!-- ═══ Frame Scrubber Engine (preserved from original) ═══ -->
   <script>
@@ -324,26 +376,49 @@
 
       // Preload sequence with async decoding for hitch-free rendering
       function preloadImages() {
-        // Immediately load frame 0 to render instantly
+        let loadedFrames = 0;
+        const markLoaded = () => {
+          loadedFrames++;
+          if (window._onAssetLoaded) {
+            window._onAssetLoaded(loadedFrames, FRAME_COUNT);
+          }
+        };
+
+        // Immediately load frame 0 to render instantly on the canvas under the blur
         const firstImg = new Image();
         firstImg.src = getFrameSrc(0);
         firstImg.onload = () => {
           images[0] = firstImg;
           drawFrame(0);
+          markLoaded();
+        };
+        firstImg.onerror = () => {
+          markLoaded();
         };
 
         // Preload remaining frames
-        for (let i = 0; i < FRAME_COUNT; i++) {
-          if (i === 0) continue;
+        for (let i = 1; i < FRAME_COUNT; i++) {
           const img = new Image();
           img.src = getFrameSrc(i);
 
           if ('decode' in img) {
             img.decode()
-              .then(() => { images[i] = img; })
-              .catch(() => { images[i] = img; });
+              .then(() => {
+                images[i] = img;
+                markLoaded();
+              })
+              .catch(() => {
+                images[i] = img;
+                markLoaded();
+              });
           } else {
-            img.onload = () => { images[i] = img; };
+            img.onload = () => {
+              images[i] = img;
+              markLoaded();
+            };
+            img.onerror = () => {
+              markLoaded();
+            };
           }
         }
       }
